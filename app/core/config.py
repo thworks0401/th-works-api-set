@@ -1,6 +1,8 @@
 """AppSettings — .envから設定を読み込む"""
 from pydantic_settings import BaseSettings
-from functools import lru_cache
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 class Settings(BaseSettings):
@@ -11,11 +13,11 @@ class Settings(BaseSettings):
 
     class Config:
         env_file = ".env"
+        env_file_encoding = "utf-8"
 
 
-@lru_cache
-def get_settings() -> Settings:
-    return Settings()
+# lru_cache を外してインスタンス直生成（キャッシュ問題を排除）
+settings = Settings()
 
-
-settings = get_settings()
+# 起動時にAPI_KEYの先頭4文字をログ出力（全体は出さない）
+logger.info(f"[config] API_KEY loaded: {settings.API_KEY[:4]}**** (env={settings.APP_ENV})")
